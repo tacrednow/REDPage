@@ -461,9 +461,6 @@
 //设置banner的外观和内容
 -(void)bannerContent:(UIViewController *)viewController{
     [self.view bringSubviewToFront:self.banner];
-//    if ([NSStringFromClass([viewController.view.superview class]) isEqualToString:@"UIScrollView"]) {
-//        self.subScrollView=(UIScrollView *)viewController.view;
-//    }
 //    self.navigationController.navigationBarHidden=NO;
 
     BOOL isScollView=NO;
