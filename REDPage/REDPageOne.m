@@ -20,7 +20,7 @@
     self = [super initWithCoder:coder];
     if (self) {
         self.tabBarType=REDTabBarTypePageBanner;
-        self.pageType=REDPageTypeMore;
+        self.pageType=REDPageTypeOne;
         self.pageUIType=REDPageUITitleCenter | REDPageUINavClear;
         self.mostBufferPageCount=5;
         self.titleWidthRate=2;
@@ -38,8 +38,8 @@
         self.titleLineBottomEdge=0;
         self.titleTopEdge=9;
         
-//        self.pageIdentifier=@"PageOne";
-//        self.storyboardName=@"Main";
+        self.pageIdentifier=@"PageOne";
+        self.storyboardName=@"Main";
     }
     return self;
 }

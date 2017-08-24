@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		D77287861F4E79D30031C36E /* REDPageMore.m in Sources */ = {isa = PBXBuildFile; fileRef = D77287851F4E79D30031C36E /* REDPageMore.m */; };
 		D783AFD01EBB05C700C4E2B1 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D783AFCF1EBB05C700C4E2B1 /* main.m */; };
 		D783AFD31EBB05C700C4E2B1 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D783AFD21EBB05C700C4E2B1 /* AppDelegate.m */; };
 		D783AFD61EBB05C700C4E2B1 /* FirstViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D783AFD51EBB05C700C4E2B1 /* FirstViewController.m */; };
@@ -22,6 +23,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		D77287841F4E79D30031C36E /* REDPageMore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = REDPageMore.h; sourceTree = "<group>"; };
+		D77287851F4E79D30031C36E /* REDPageMore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = REDPageMore.m; sourceTree = "<group>"; };
 		D783AFCB1EBB05C700C4E2B1 /* REDPage.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = REDPage.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D783AFCF1EBB05C700C4E2B1 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D783AFD11EBB05C700C4E2B1 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -83,6 +86,8 @@
 				D783AFD81EBB05C700C4E2B1 /* SecondViewController.m */,
 				D783AFEE1EBB073D00C4E2B1 /* REDPageOne.h */,
 				D783AFEF1EBB073D00C4E2B1 /* REDPageOne.m */,
+				D77287841F4E79D30031C36E /* REDPageMore.h */,
+				D77287851F4E79D30031C36E /* REDPageMore.m */,
 				D7AC23D81F4C223100CA755C /* REDTabBarController.h */,
 				D7AC23D71F4C223100CA755C /* REDTabBarController.m */,
 				D7C951F21EBC56D900ED2851 /* dynamicItem.h */,
@@ -187,6 +192,7 @@
 				D783AFD61EBB05C700C4E2B1 /* FirstViewController.m in Sources */,
 				D7C951F41EBC56D900ED2851 /* dynamicItem.m in Sources */,
 				D783AFD01EBB05C700C4E2B1 /* main.m in Sources */,
+				D77287861F4E79D30031C36E /* REDPageMore.m in Sources */,
 				D783AFF01EBB073D00C4E2B1 /* REDPageOne.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
