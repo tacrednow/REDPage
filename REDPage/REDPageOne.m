@@ -33,7 +33,7 @@
         self.selectedTitle=[[UILabel alloc]init];
         self.selectedTitle.textColor=[UIColor blackColor];
         self.selectedTitle.font=[UIFont boldSystemFontOfSize:17];
-        [self.titleArray addObjectsFromArray:@[@"page1", @"page2"]];
+        [self.titleArray addObjectsFromArray:@[@"page1", @"page2", @"page3", @"page4", @"page5"]];
         
         self.titleLineBottomEdge=0;
         self.titleTopEdge=9;

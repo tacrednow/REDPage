@@ -129,31 +129,20 @@
 
 #pragma mark - UIScrollViewDelegate
 
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-    [self gotoCurrectScrollView];
-}
+//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+//    [self gotoCurrectScrollView];
+//}
 
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
     if (scrollView==self.scrollView && scrollView.contentOffset.x!=0) {
         int index=scrollView.contentOffset.x / self.view.frame.size.width;
         
+        //判断page是否变化，是否需要刷新页面.
         int indexChange=(int)((scrollView.contentOffset.x / self.view.frame.size.width)*10) % 10;
         if (indexChange==0) {
             _scrollViewChange=NO;
-        }else{
-            if (!_scrollViewChange && indexChange>0) {
-                if (indexChange>5) {
-                    self.index = index;
-                }else{
-                    if (index<self.titleLabelArray.count-1) {
-                        self.index = index+1;
-                    }
-                }
-                if ([self.viewControllerFlag[self.index] intValue] == 1) {
-                    [self gotoCurrectScrollView];
-                }
-                _scrollViewChange=YES;
-            }
+            self.index = index;
+            [self gotoCurrectScrollView];
         }
         
         UILabel *labelFront=self.titleLabelArray[index];
@@ -179,14 +168,14 @@
     }
 }
 
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
-    if (scrollView==self.scrollView) {
-        self.index = (int) (targetContentOffset->x / self.view.frame.size.width);
-        [self gotoCurrectScrollView];
-    }else if (scrollView==self.titleScrollView){
-        
-    }
-}
+//- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
+//    if (scrollView==self.scrollView) {
+//        self.index = (int) (targetContentOffset->x / self.view.frame.size.width);
+//        [self gotoCurrectScrollView];
+//    }else if (scrollView==self.titleScrollView){
+//        
+//    }
+//}
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView{
     if (scrollView==self.scrollView) {
@@ -430,6 +419,7 @@
         }else{
             labelNew =  [self titleLabelCopy:self.unselectedTitle];
         }
+
         
         UITapGestureRecognizer *tap=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tiltePressed:)];
         labelNew.userInteractionEnabled=YES;
@@ -438,9 +428,9 @@
         labelNew.text=label.text;
         labelNew.textAlignment=NSTextAlignmentCenter;
         labelNew.frame=CGRectMake(label.frame.origin.x, label.frame.origin.y, label.frame.size.width, label.frame.size.height);
-        [label.superview addSubview:labelNew];
         [self.titleLabelArray replaceObjectAtIndex:i withObject:labelNew];
         frame=labelNew.frame;
+        [label.superview addSubview:labelNew];
         [label removeFromSuperview];
 
         //titleScrollView自动正确位移
