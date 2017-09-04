@@ -129,33 +129,23 @@
 
 #pragma mark - UIScrollViewDelegate
 
-//- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-//    [self gotoCurrectScrollView];
-//}
-
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
     if (scrollView==self.scrollView && scrollView.contentOffset.x!=0) {
-        int index=scrollView.contentOffset.x / self.view.frame.size.width;
+        int page =scrollView.contentOffset.x / self.view.frame.size.width;
         
-        //判断page是否变化，是否需要刷新页面.
-        int indexChange=(int)((scrollView.contentOffset.x / self.view.frame.size.width)*10) % 10;
-        if (indexChange==0) {
-            _scrollViewChange=NO;
-            self.index = index;
-            [self gotoCurrectScrollView];
-        }
+
         
-        UILabel *labelFront=self.titleLabelArray[index];
+        UILabel *labelFront=self.titleLabelArray[page];
         UILabel *labelBack;
-        if (index<self.titleLabelArray.count-1 && scrollView.contentOffset.x > 0) {
-            labelBack=self.titleLabelArray[index+1];
+        if (page <self.titleLabelArray.count-1 && scrollView.contentOffset.x > 0) {
+            labelBack=self.titleLabelArray[page +1];
         }else{
             labelBack=labelFront;
         }
         float distance=CGRectGetMidX(labelBack.frame)-CGRectGetMidX(labelFront.frame);
         float rate=distance/self.view.frame.size.width;
         float rateWidth = (1 + _titleWidthRate * fabs(sin(scrollView.contentOffset.x * (M_PI / self.view.frame.size.width))));
-        self.titleLine.frame=CGRectMake(labelFront.center.x-(_titleLineWidth/2 * rateWidth) + ( scrollView.contentOffset.x - self.view.frame.size.width * index ) * rate, self.titleLine.frame.origin.y, _titleLineWidth * rateWidth, self.titleLine.frame.size.height);
+        self.titleLine.frame=CGRectMake(labelFront.center.x-(_titleLineWidth/2 * rateWidth) + ( scrollView.contentOffset.x - self.view.frame.size.width * page) * rate, self.titleLine.frame.origin.y, _titleLineWidth * rateWidth, self.titleLine.frame.size.height);
         
         CGFloat ur, ug, ub, ua;
         CGFloat r, g, b, a;
@@ -165,17 +155,35 @@
         
         labelBack.textColor=[UIColor colorWithRed:ur+(r-ur)*rateColor green:ug+(g-ug)*rateColor blue:ub+(b-ub)*rateColor alpha:ua+(a-ua)*rateColor];
         labelFront.textColor=[UIColor colorWithRed:r+(ur-r)*rateColor green:g+(ug-g)*rateColor blue:b+(ub-b)*rateColor alpha:a+(ua-a)*rateColor];
+        
+        //title文字大小渐变，但是会发生抖动，原因不明；有一条思路是将label变成图片然后改变图片大小。
+//        NSLog(@"TEST:%f",self.unselectedTitle.font.pointSize);
+//        labelBack.font=[UIFont systemFontOfSize:floorf((self.unselectedTitle.font.pointSize+(self.selectedTitle.font.pointSize-self.unselectedTitle.font.pointSize)*rateColor)*10)/10];
+//        labelFront.font=[UIFont systemFontOfSize:floorf((self.selectedTitle.font.pointSize+(self.unselectedTitle.font.pointSize-self.selectedTitle.font.pointSize)*rateColor)*10)/10];
+
+        //判断page是否变化，是否需要刷新页面.
+        int indexChange=(int)((scrollView.contentOffset.x / self.view.frame.size.width)*10) % 10;
+        if (indexChange==0) {
+            _scrollViewChange=NO;
+            self.page = page;
+            [self gotoCurrectScrollView];
+        }else{
+            if (!_scrollViewChange && indexChange>0) {
+                if (indexChange>5) {
+                    self.page = page;
+                }else{
+                    if (page<self.titleLabelArray.count-1) {
+                        self.page = page+1;
+                    }
+                }
+                if ([self.viewControllerFlag[self.page] intValue] == 1) {
+                    [self changePageView];
+                }
+                _scrollViewChange=YES;
+            }
+        }
     }
 }
-
-//- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
-//    if (scrollView==self.scrollView) {
-//        self.index = (int) (targetContentOffset->x / self.view.frame.size.width);
-//        [self gotoCurrectScrollView];
-//    }else if (scrollView==self.titleScrollView){
-//        
-//    }
-//}
 
 - (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView{
     if (scrollView==self.scrollView) {
@@ -183,6 +191,16 @@
     }
     return YES;
 }
+
+//添加后可以不在scrollViewDidScroll中做page判断，但是titleScrollView上的文字会闪动
+//- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView withVelocity:(CGPoint)velocity targetContentOffset:(inout CGPoint *)targetContentOffset{
+//    if (scrollView==self.scrollView) {
+//        self.page = (int) (targetContentOffset->x / self.view.frame.size.width);
+//        [self gotoCurrectScrollView];
+//    }else if (scrollView==self.titleScrollView){
+//
+//    }
+//}
 
 #pragma mark - Setter
 
@@ -248,9 +266,11 @@
         }
         NSMutableArray *titleArray=[NSMutableArray new];
         CGRect frame=CGRectZero;
+        self.selectedTitle.text=@"TITLE";
+        [self.selectedTitle sizeToFit];
         for (int i=0; i<self.titleArray.count; i++) {
             UILabel *title;
-            if (_index==i) {
+            if (_page ==i) {
                 title =  [self titleLabelCopy:self.selectedTitle];
             }else{
                 title =  [self titleLabelCopy:self.unselectedTitle];
@@ -259,8 +279,7 @@
             title.text=self.titleArray[i];
             title.textAlignment=NSTextAlignmentCenter;
             [title sizeToFit];
-            title.frame=CGRectMake(title.frame.origin.x, _titleTopEdge, title.frame.size.width+_titleLeftRightEdge, title.frame.size.height+5);
-            
+            title.frame=CGRectMake(title.frame.origin.x, _titleTopEdge, title.frame.size.width+_titleLeftRightEdge, self.selectedTitle.frame.size.height+5);
             [self.titleScrollView addSubview:title];
             frame=title.frame;
             
@@ -270,7 +289,7 @@
             
             [self.titleLabelArray addObject:title];
             [titleArray addObject:title];
-            if (_index==i) {
+            if (_page ==i) {
                 [self.titleScrollView addSubview:self.titleLine];
                 _titleLineWidth=self.titleLine.frame.size.width;
                 self.titleLine.frame = CGRectMake(title.center.x - self.titleLine.frame.size.width/2, CGRectGetMaxY(self.titleScrollView.frame)-self.titleLine.frame.size.height-_titleLineBottomEdge, _titleLineWidth, self.titleLine.frame.size.height);
@@ -286,7 +305,7 @@
                     UILabel *title=titleArray[i];
                     title.frame=CGRectMake(CGRectGetMaxX(frame), _titleTopEdge, title.frame.size.width * rate, title.frame.size.height);
                     frame=title.frame;
-                    if (_index==i) {
+                    if (_page ==i) {
                         self.titleLine.frame = CGRectMake(title.center.x - self.titleLine.frame.size.width/2, CGRectGetMaxY(self.titleScrollView.frame)-self.titleLine.frame.size.height-_titleLineBottomEdge, _titleLineWidth, self.titleLine.frame.size.height);
                     }
                 }
@@ -339,87 +358,94 @@
 }
 
 -(void)gotoPageViewWithIndex:(NSInteger)index{
-    self.index=(int)index;
+    self.page =(int)index;
     [self.scrollView setContentOffset:CGPointMake(self.view.frame.size.width * index, 0) animated:NO];
     [self gotoCurrectScrollView];
 }
 
 //显示当前page页
 -(void)gotoCurrectScrollView{
-//    if (self.pageType <= REDPageTypeOne) {
-        UIViewController *viewController;
+    [self changePageView];
+    [self changeTitleView];
+}
+
+-(void)changePageView{
+    //    if (self.pageType <= REDPageTypeOne) {
+    UIViewController *viewController;
     self.pageViewController=viewController;
-        if ([self.viewControllerFlag[self.index] intValue] == 0) {
-            if (self.pageType <= REDPageTypeOne) {
-                UIStoryboard *storyboard = [UIStoryboard storyboardWithName:_storyboardName bundle:nil];
-                viewController=[storyboard instantiateViewControllerWithIdentifier:_pageIdentifier];
-                
-                viewController.title=self.titleArray[self.index];
-                viewController.view.frame=CGRectMake(self.view.frame.size.width * self.index, 0, self.view.frame.size.width, self.view.frame.size.height);
-                [self addChildViewController:viewController];
-                [self.scrollView addSubview:viewController.view];
-            }else{
-                viewController=self.viewControllers[self.index];
-                [self addPageView:viewController];
-
-                //复制storyboard中的viewController会丢失对象，不能使用。
-//                NSData * tempArchive = [NSKeyedArchiver archivedDataWithRootObject:self.pageViewController];
-//                viewController = [NSKeyedUnarchiver unarchiveObjectWithData:tempArchive];
-            }
+    if ([self.viewControllerFlag[self.page] intValue] == 0) {
+        if (self.pageType <= REDPageTypeOne) {
+            UIStoryboard *storyboard = [UIStoryboard storyboardWithName:_storyboardName bundle:nil];
+            viewController=[storyboard instantiateViewControllerWithIdentifier:_pageIdentifier];
             
-            if (self.tabBarType == REDTabBarTypePageBanner) {
-                [self bannerContent:viewController];
-            }
-            
-            [self.controllerArrayAll replaceObjectAtIndex:self.index withObject:@{@"vc":viewController}];
-
-            [self.controllerArray addObject:@{@"index":@(self.index), @"controller":viewController}];
-            [self.viewControllerFlag replaceObjectAtIndex:self.index withObject:@1];
-            
-            if (self.controllerArray.count > self.mostBufferPageCount) {
-                NSDictionary *dict=self.controllerArray.firstObject;
-                UIViewController *viewController=dict[@"controller"];
-                if (self.tabBarType == REDTabBarTypePageBanner) {
-                    [viewController.view removeObserver:self forKeyPath:@"contentOffset"];
-                }
-                [self.viewControllerFlag replaceObjectAtIndex:[dict[@"index"] intValue] withObject:@0];
-                [self.controllerArrayAll replaceObjectAtIndex:[dict[@"index"] intValue] withObject:@{@"vc":@""}];
-                [viewController removeFromParentViewController];
-                [self.controllerArray removeObjectAtIndex:0];
-                [viewController.view removeFromSuperview];
-                viewController=nil;
-            }
+            viewController.title=self.titleArray[self.page];
+            viewController.view.frame=CGRectMake(self.view.frame.size.width * self.page, 0, self.view.frame.size.width, self.view.frame.size.height);
+            [self addChildViewController:viewController];
+            [self.scrollView addSubview:viewController.view];
         }else{
-            NSDictionary *dict=self.controllerArrayAll[self.index];
-            viewController=dict[@"vc"];
-            if (self.tabBarType == REDTabBarTypePageBanner) {
-                [self bannerContent:viewController];
-            }
+            viewController=self.viewControllers[self.page];
+            [self addPageView:viewController];
+            
+            //复制storyboard中的viewController会丢失对象，不能使用。
+            //                NSData * tempArchive = [NSKeyedArchiver archivedDataWithRootObject:self.pageViewController];
+            //                viewController = [NSKeyedUnarchiver unarchiveObjectWithData:tempArchive];
         }
+        
+        if (self.tabBarType == REDTabBarTypePageBanner) {
+            [self bannerContent:viewController];
+        }
+        
+        [self.controllerArrayAll replaceObjectAtIndex:self.page withObject:@{@"vc" : viewController}];
+        
+        [self.controllerArray addObject:@{@"index":@(self.page), @"controller":viewController}];
+        [self.viewControllerFlag replaceObjectAtIndex:self.page withObject:@1];
+        
+        if (self.controllerArray.count > self.mostBufferPageCount) {
+            NSDictionary *dict=self.controllerArray.firstObject;
+            UIViewController *viewController=dict[@"controller"];
+            if (self.tabBarType == REDTabBarTypePageBanner) {
+                [viewController.view removeObserver:self forKeyPath:@"contentOffset"];
+            }
+            [self.viewControllerFlag replaceObjectAtIndex:[dict[@"index"] intValue] withObject:@0];
+            [self.controllerArrayAll replaceObjectAtIndex:[dict[@"index"] intValue] withObject:@{@"vc":@""}];
+            [viewController removeFromParentViewController];
+            [self.controllerArray removeObjectAtIndex:0];
+            [viewController.view removeFromSuperview];
+            viewController=nil;
+        }
+    }else{
+        NSDictionary *dict=self.controllerArrayAll[self.page];
+        viewController=dict[@"vc"];
+        if (self.tabBarType == REDTabBarTypePageBanner) {
+            [self bannerContent:viewController];
+        }
+    }
     
     self.pageViewController=viewController;
-//    }
-//else{
-//        UIViewController *viewController=self.viewControllers[self.index];
-//        [self addPageView:viewController];
-//        if (self.tabBarType == REDTabBarTypePageBanner) {
-//            [self bannerContent:viewController];
-//        }
-//        
-//    }
+    //    }
+    //else{
+    //        UIViewController *viewController=self.viewControllers[self.index];
+    //        [self addPageView:viewController];
+    //        if (self.tabBarType == REDTabBarTypePageBanner) {
+    //            [self bannerContent:viewController];
+    //        }
+    //
+    //    }
+}
 
+-(void)changeTitleView{
     //替换title
     CGRect frame=CGRectZero;
     for (int i=0; i<self.titleLabelArray.count; i++) {
         UILabel *label=self.titleLabelArray[i];
         
         UILabel *labelNew;
-        if (_index==i) {
+        if (_page ==i) {
             labelNew =  [self titleLabelCopy:self.selectedTitle];
         }else{
             labelNew =  [self titleLabelCopy:self.unselectedTitle];
         }
-
+        
         
         UITapGestureRecognizer *tap=[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tiltePressed:)];
         labelNew.userInteractionEnabled=YES;
@@ -432,9 +458,9 @@
         frame=labelNew.frame;
         [label.superview addSubview:labelNew];
         [label removeFromSuperview];
-
+        
         //titleScrollView自动正确位移
-        if (_index==i) {
+        if (_page ==i) {
             if (CGRectGetMinX(label.frame)<self.titleScrollView.contentOffset.x) {
                 [UIView animateWithDuration:0.3 animations:^{
                     self.titleScrollView.contentOffset=CGPointMake(CGRectGetMinX(label.frame), 0);
@@ -469,7 +495,7 @@
         _animator = [[UIDynamicAnimator alloc] initWithReferenceView:self.subScrollView];
         self.subScrollView.contentInset=UIEdgeInsetsMake(_bannerHeight, 0, 0, 0);
         self.subScrollView.scrollIndicatorInsets=UIEdgeInsetsMake(_bannerHeight, 0, 49, 0);
-        NSDictionary *dict=self.controllerArrayAll[self.index];
+        NSDictionary *dict=self.controllerArrayAll[self.page];
         CGFloat otherHeight=64 + titleScrollViewHeight;
         if (self.navigationController.navigationBarHidden) {
             otherHeight= 20 + titleScrollViewHeight;
@@ -495,7 +521,7 @@
     for (int i=0; i<self.titleLabelArray.count; i++) {
         UILabel *label=self.titleLabelArray[i];
         if ([label isEqual:tap.view]) {
-            self.index=i;
+            self.page =i;
             _scrollViewChange=YES;
             [self.scrollView setContentOffset:CGPointMake(self.view.frame.size.width * i, 0) animated:YES];
             [self gotoCurrectScrollView];

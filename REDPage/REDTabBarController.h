@@ -35,7 +35,7 @@ typedef NS_ENUM(NSInteger, REDPageUIType) {
 @property (nonatomic, strong) UIScrollView *scrollView;
 @property (nonatomic, strong) UIScrollView *listScrollView;
 @property (nonatomic, strong) UIScrollView *titleScrollView;
-@property (nonatomic) int index;
+@property (nonatomic) int page;
 @property (nonatomic, strong) NSMutableArray *titleArray;
 
 /**
